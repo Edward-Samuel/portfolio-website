@@ -6,12 +6,12 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true' ? '/portfolio-website/' : '/',
   resolve: {
     alias: {
-      "@": path.resolve(new URL(".", import.meta.url).pathname, "./src"),
+      '@': path.resolve(process.cwd(), './src'),
     },
   },
-  base: import.meta.env.MODE === 'production' && import.meta.env.VITE_GITHUB_PAGES ? '/portfolio-website/' : '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
