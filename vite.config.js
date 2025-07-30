@@ -8,10 +8,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(new URL(".", import.meta.url).pathname, "./src"),
     },
   },
-  base: process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES ? '/portfolio-website/' : '/',
+  base: import.meta.env.MODE === 'production' && import.meta.env.VITE_GITHUB_PAGES ? '/portfolio-website/' : '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
