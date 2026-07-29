@@ -14,7 +14,11 @@ function About() {
 
         <div className="about__grid">
           <Reveal className="about__content">
-            <p className="about__text">{bio.paragraph}</p>
+            <div className="about__text">
+              {bio.paragraph.split('\n\n').map((para, index) => (
+                <p key={index}>{para}</p>
+              ))}
+            </div>
 
             <div className="about__education">
               <h3 className="about__subheading">Education</h3>

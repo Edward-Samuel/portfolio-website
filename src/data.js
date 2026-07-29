@@ -16,7 +16,7 @@ export const profile = {
     "https://drive.google.com/uc?export=download&id=11CI6QM_c3zVDpP9NLKkkh-5yr3b5ptin",
   resumeFallback: "/Profile.pdf",
   summary:
-    "I am an aspiring Data Scientist and AI enthusiast currently pursuing a B.Tech in Artificial Intelligence & Data Science at Coimbatore Institute of Technology (CIT). Passionate about solving real-world problems, I have built impactful projects in AI-powered medical diagnosis, GPS-based toll systems, and web content extraction. My technical expertise includes Python, Flask, React, MongoDB, MySQL, and Data Structures & Algorithms. I’m particularly interested in applying AI in domains like Healthcare, EdTech, and Tourism Tech. With a strong drive to learn, collaborate, and innovate, I aim to develop intelligent, user-centric solutions that make a real difference.",
+    "I am an AI & Data Science graduate from Coimbatore Institute of Technology (CIT) with a passion for building intelligent, data-driven solutions that solve real-world problems. My interests span artificial intelligence, machine learning, data science, computer vision, and full-stack development, with hands-on experience developing end-to-end applications.\n\nI have built projects in AI-powered healthcare, computer vision, web content extraction, and GPS-based toll automation, leveraging technologies such as Python, Flask, React, FastAPI, MongoDB, MySQL, and modern AI frameworks. I enjoy transforming complex ideas into practical, user-centric solutions that are scalable and impactful.\n\nI am particularly interested in applying AI across healthcare, education, and smart mobility, while continuously exploring emerging technologies such as generative AI, large language models (LLMs), and agentic AI. As a lifelong learner, I am eager to collaborate with innovative teams, contribute to meaningful products, and create technology that delivers measurable real-world impact.",
 };
 
 export const greetings = [
@@ -74,6 +74,7 @@ export const skills = [
     items: [
       "Machine Learning",
       "NLP",
+      "Agentic AI",
       "Feature Engineering",
       "Model Training",
       "Symptom Analysis",

@@ -645,6 +645,10 @@ body::before {
   line-height: 1.8;
 }
 
+.about__text p + p {
+  margin-top: 1.5rem;
+}
+
 .about__subheading {
   font-size: 1.25rem;
   font-weight: 600;
