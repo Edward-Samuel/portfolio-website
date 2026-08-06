@@ -3,40 +3,7 @@ import { FaGithub, FaLinkedin, FaYoutube, FaChevronDown, FaFilePdf } from 'react
 import { MdEmail } from 'react-icons/md'
 import { greetings, profile } from '../data.js'
 import { buildGmailUrl } from '../utils/contactLinks.js'
-
-function Avatar() {
-  const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState(false)
-  const showImage = loaded && !error
-
-  return (
-    <div
-      className="avatar"
-      role="img"
-      aria-label={`${profile.firstName} ${profile.lastName} avatar`}
-    >
-      <div className="avatar__ring" aria-hidden="true" />
-      <div className="avatar__inner">
-        <img
-          src={profile.photo}
-          alt={`${profile.firstName} ${profile.lastName}`}
-          className={`avatar__img ${showImage ? 'avatar__img--loaded' : ''}`}
-          loading="eager"
-          decoding="async"
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
-        />
-        <div
-          className={`avatar__fallback ${showImage ? '' : 'avatar__fallback--visible'}`}
-          aria-hidden="true"
-        >
-          <span className="avatar__initials">{profile.initials}</span>
-        </div>
-      </div>
-      <span className="avatar__status" aria-hidden="true" />
-    </div>
-  )
-}
+import AvatarModel from './AvatarModel.jsx'
 
 function Hero() {
   const [index, setIndex] = useState(0)
@@ -58,7 +25,7 @@ function Hero() {
     <section id="home" className="hero">
       <div className="hero__content">
         <div className="hero__photo">
-          <Avatar />
+          <AvatarModel />
         </div>
 
         <div className="hero__text">
