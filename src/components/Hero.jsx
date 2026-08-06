@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { FaGithub, FaLinkedin, FaYoutube, FaChevronDown, FaFilePdf } from 'react-icons/fa'
 import { MdEmail } from 'react-icons/md'
 import { greetings, profile } from '../data.js'
 import { buildGmailUrl } from '../utils/contactLinks.js'
-import AvatarModel from './AvatarModel.jsx'
+import { useShouldLoad3D } from '../hooks/useShouldLoad3D.js'
+import AvatarFallback, { AvatarSkeleton } from './AvatarFallback.jsx'
+
+const AvatarModel = lazy(() => import('./AvatarModel.jsx'))
 
 function Hero() {
   const [index, setIndex] = useState(0)
+  const shouldLoad3D = useShouldLoad3D()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,7 +29,13 @@ function Hero() {
     <section id="home" className="hero">
       <div className="hero__content">
         <div className="hero__photo">
-          <AvatarModel />
+          {shouldLoad3D ? (
+            <Suspense fallback={<AvatarSkeleton />}>
+              <AvatarModel placeholder={<AvatarFallback />} />
+            </Suspense>
+          ) : (
+            <AvatarFallback />
+          )}
         </div>
 
         <div className="hero__text">

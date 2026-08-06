@@ -1,6 +1,6 @@
 import { Suspense, Component, useMemo, useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, OrbitControls, Html } from '@react-three/drei'
+import { useGLTF, OrbitControls, Html, useProgress } from '@react-three/drei'
 import * as THREE from 'three'
 import { profile } from '../data.js'
 
@@ -9,15 +9,6 @@ const AUTO_ROTATE_SPEED = 0.35
 const POINTER_FOLLOW_STRENGTH = 0.25
 const POINTER_DAMP = 0.08
 const RESUME_DELAY = 2000
-
-function hasWebGL() {
-  try {
-    const canvas = document.createElement('canvas')
-    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-  } catch {
-    return false
-  }
-}
 
 class ModelErrorBoundary extends Component {
   constructor(props) {
@@ -41,6 +32,33 @@ function LoaderRing() {
   return (
     <Html center>
       <div className="avatar__spinner" aria-hidden="true" />
+    </Html>
+  )
+}
+
+function LoadingProgress() {
+  const { active, progress, loaded, total } = useProgress()
+
+  if (!active) return <LoaderRing />
+
+  const bounded = Math.min(100, Math.max(0, progress))
+  const bytesKnown = total > 0 && loaded > 0
+  const label = bytesKnown
+    ? `${loaded} / ${total} items`
+    : `${Math.round(bounded)}%`
+
+  return (
+    <Html center>
+      <div className="avatar__progress" aria-label={`Loading avatar, ${label}`} role="status">
+        <div className="avatar__progress-bar" aria-hidden="true">
+          <div
+            className="avatar__progress-fill"
+            style={{ width: `${bounded}%` }}
+            aria-hidden="true"
+          />
+        </div>
+        <span>{label}</span>
+      </div>
     </Html>
   )
 }
@@ -180,35 +198,15 @@ function Model({ reducedMotion, pointerRef, draggingRef }) {
   )
 }
 
-function FallbackImage() {
-  const [loaded, setLoaded] = useState(false)
-
-  return (
-    <div className="avatar__inner">
-      <img
-        src={profile.photo}
-        alt={`${profile.firstName} ${profile.lastName}`}
-        className={`avatar__img ${loaded ? 'avatar__img--loaded' : ''}`}
-        loading="eager"
-        decoding="async"
-        onLoad={() => setLoaded(true)}
-      />
-      <div className={`avatar__fallback ${loaded ? '' : 'avatar__fallback--visible'}`} aria-hidden="true">
-        <span className="avatar__initials">{profile.initials}</span>
-      </div>
-    </div>
-  )
-}
-
-function AvatarModelInner() {
-  const [fallback] = useState(() => !hasWebGL())
+function useReducedMotion() {
   const [reducedMotion, setReducedMotion] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
-  const pointerRef = useRef(null)
-  const draggingRef = useRef(false)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     const onChange = (e) => setReducedMotion(e.matches)
     if (mq.addEventListener) {
@@ -225,34 +223,82 @@ function AvatarModelInner() {
     }
   }, [])
 
+  return reducedMotion
+}
+
+function AvatarModelInner({ placeholder }) {
+  const reducedMotion = useReducedMotion()
+  const pointerRef = useRef(null)
+  const draggingRef = useRef(false)
+  const [activated, setActivated] = useState(false)
+  const [intersecting, setIntersecting] = useState(false)
+  const [visible, setVisible] = useState(() => typeof document === 'undefined' || !document.hidden)
+  const hostRef = useRef(null)
+
+  useEffect(() => {
+    const node = hostRef.current
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setActivated(true)
+      setIntersecting(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isIntersecting = entry.isIntersecting
+        setIntersecting(isIntersecting)
+        if (isIntersecting) {
+          setActivated(true)
+        }
+      },
+      { threshold: 0, rootMargin: '200px' },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const onVisibilityChange = () => {
+      setVisible(!document.hidden)
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [])
+
+  const frameLoop = intersecting && visible ? 'always' : 'never'
+  const showPlaceholder = !activated || (!intersecting && !visible)
+
   return (
     <div
+      ref={hostRef}
       className="avatar"
       role="img"
       aria-label={`${profile.firstName} ${profile.lastName} interactive 3D avatar. Drag to rotate.`}
     >
-      {fallback ? (
-        <FallbackImage />
-      ) : (
-        <ModelErrorBoundary fallback={<FallbackImage />}>
+      <ModelErrorBoundary fallback={placeholder}>
+        {activated && (
           <Canvas
             className="avatar__canvas"
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             camera={{ position: [0, 0, 3.5], fov: 38 }}
             shadows
+            frameloop={frameLoop}
             aria-hidden="true"
             tabIndex={-1}
           >
-            <Suspense fallback={<LoaderRing />}>
+            <Suspense fallback={<LoadingProgress />}>
               <Model reducedMotion={reducedMotion} pointerRef={pointerRef} draggingRef={draggingRef} />
             </Suspense>
           </Canvas>
-        </ModelErrorBoundary>
-      )}
+        )}
+        {showPlaceholder && placeholder}
+      </ModelErrorBoundary>
     </div>
   )
 }
 
-export default function AvatarModel() {
-  return <AvatarModelInner />
+export default function AvatarModel({ placeholder }) {
+  return <AvatarModelInner placeholder={placeholder} />
 }
