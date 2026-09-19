@@ -4,7 +4,7 @@ export const profile = {
   initials: "ES",
   photo: "/edward-samuel-profile.jpeg",
   tagline:
-    "Data Science Intern @Justo Global | AI & ML Enthusiast | Python Developer | CIT ’26",
+    "Junior AI/ML Developer @Justo Global | AI & ML Enthusiast | Python Developer | CIT ’26",
   email: "edwardsamuel9697@gmail.com",
   location: "Coimbatore, Tamil Nadu, India",
   linkedIn: "https://www.linkedin.com/in/edwardsamuel13",
